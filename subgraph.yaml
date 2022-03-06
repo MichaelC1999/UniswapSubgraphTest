@@ -13,17 +13,39 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - FeeAmountEnabled
-        - OwnerChanged
-        - PoolCreated
+        - Factory
       abis:
         - name: Factory
           file: ./abis/Factory.json
-      eventHandlers:
-        - event: FeeAmountEnabled(indexed uint24,indexed int24)
-          handler: handleFeeAmountEnabled
-        - event: OwnerChanged(indexed address,indexed address)
-          handler: handleOwnerChanged
-        - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
-          handler: handlePoolCreated
       file: ./src/mapping.ts
+templates:
+  - kind: ethereum/contract
+    name: Pool
+    network: mainnet
+    source:
+      abi: Pool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/mapping.ts
+      entities:
+        - Factory
+      abis:
+        - name: Pool
+          file: ./abis/Pool.json
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Initialize(uint160,int24)
+          handler: handleInit
+        - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
+          handler: handleCheckUniqueAddr
+        - event: Mint(address,indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
+          handler: handleCheckUniqueAddr
+        - event: Burn(indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
+          handler: handleCheckUniqueAddr
+        - event: Flash(indexed address,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleCheckUniqueAddr

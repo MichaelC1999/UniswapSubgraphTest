@@ -1,6 +1,5 @@
-type ExampleEntity @entity {
+type Factory @entity {
   id: ID!
-  count: BigInt!
-  fee: Int! # uint24
-  tickSpacing: Int! # int24
+  uniqueUserList: [String!]
+  uniqueUserCount: BigInt!
 }

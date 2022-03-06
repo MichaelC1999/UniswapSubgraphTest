@@ -1,58 +1,41 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+
+import { Factory } from "../generated/schema"
 import {
-  Factory,
-  FeeAmountEnabled,
-  OwnerChanged,
-  PoolCreated
-} from "../generated/Factory/Factory"
-import { ExampleEntity } from "../generated/schema"
+  Burn as BurnEvent,
+  Flash as FlashEvent,
+  Initialize,
+  Mint as MintEvent,
+  Swap as SwapEvent
+} from '../types/templates/Pool/Pool'
 
-export function handleFeeAmountEnabled(event: FeeAmountEnabled): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.fee = event.params.fee
-  entity.tickSpacing = event.params.tickSpacing
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.createPool(...)
-  // - contract.feeAmountTickSpacing(...)
-  // - contract.getPool(...)
-  // - contract.owner(...)
-  // - contract.parameters(...)
+export function handleInit(event: Initialize ): void {
+  let factory = new Factory.load(event.address.toHexString())
+  factory.uniqueUserList = [];
+  factory.uniqueUserCount = 0;
+  factory.save();
 }
 
-export function handleOwnerChanged(event: OwnerChanged): void {}
+export function handleCheckUniqueAddr(event: BurnEvent | FlashEvent | MintEvent | SwapEvent): void {
+  //Would possibly need to add these events as an entity to the schema to see which params for each event?
+  let factory = Factory.load(event.address.toHexString());
+  let startingCount = factory.uniqueUserCount;
+  if (!factory.uniqueUserList.includes(event.params?.from?.toHex())) {
+    factory.uniqueUserList.push(event.params?.from?.toHex());
+    factory.uniqueUserCount += 1;
+  }
+  if (!factory.uniqueUserList.includes(event.params?.to?.toHex())) {
+    factory.uniqueUserList.push(event.params?.to?.toHex());
+    factory.uniqueUserCount += 1;
+  }
+  if (!factory.uniqueUserList.includes(event.params?.sender?.toHex())) {
+    factory.uniqueUserList.push(event.params?.sender?.toHex());
+    factory.uniqueUserCount += 1;
+  }
+  if (!factory.uniqueUserList.includes(event.params?.recipient?.toHex())) {
+    factory.uniqueUserList.push(event.params?.recipient?.toHex());
+    factory.uniqueUserCount += 1;
+  }
 
-export function handlePoolCreated(event: PoolCreated): void {}
+  if (factory.uniqueUserCount !== startingCount) factory.save()
+}
+
