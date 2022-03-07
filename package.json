@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ --from-contract",
+    "deploy": "graph deploy MCarroll-Messari --node https://api.studio.thegraph.com/deploy/ --from-contract",
     "create-local": "graph create --node http://localhost:8020/ --from-contract",
     "remove-local": "graph remove --node http://localhost:8020/ --from-contract",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 --from-contract"
@@ -14,6 +14,7 @@
     "@graphql-codegen/cli": "^2.6.2"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.27.0"
+    "@graphprotocol/graph-cli": "^0.27.0",
+    "typescript": "^4.6.2"
   }
 }

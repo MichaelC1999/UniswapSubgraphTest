@@ -45,23 +45,6 @@ export class Factory extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get uniqueUserList(): Array<string> | null {
-    let value = this.get("uniqueUserList");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set uniqueUserList(value: Array<string> | null) {
-    if (!value) {
-      this.unset("uniqueUserList");
-    } else {
-      this.set("uniqueUserList", Value.fromStringArray(<Array<string>>value));
-    }
-  }
-
   get uniqueUserCount(): BigInt {
     let value = this.get("uniqueUserCount");
     return value!.toBigInt();
@@ -69,5 +52,38 @@ export class Factory extends Entity {
 
   set uniqueUserCount(value: BigInt) {
     this.set("uniqueUserCount", Value.fromBigInt(value));
+  }
+}
+
+export class UserObj extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save UserObj entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save UserObj entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("UserObj", id.toString(), this);
+    }
+  }
+
+  static load(id: string): UserObj | null {
+    return changetype<UserObj | null>(store.get("UserObj", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
   }
 }

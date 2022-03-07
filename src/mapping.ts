@@ -1,38 +1,122 @@
 
-import { BigInt } from "@graphprotocol/graph-ts";
-import { Factory } from "../generated/schema"
+import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Factory, UserObj } from "../generated/schema"
 import {
   Burn as BurnEvent,
   Flash as FlashEvent,
-  Initialize,
   Mint as MintEvent,
   Swap as SwapEvent
 } from '../generated/templates/Pool/Pool'
 
-export function handleInit(event: Initialize ): void {
-  let factory = new Factory.load(event.address.toHexString())
-  factory.uniqueUserList = [];
-  factory.uniqueUserCount = 0;
-  factory.save();
+function newFactory(): Factory {
+  let factory = new Factory("SingleFactory");
+  factory.uniqueUserCount = new BigInt(0);
+  return factory;
 }
 
-export function handleCheckUniqueAddr(event: BurnEvent | FlashEvent | MintEvent | SwapEvent): void {
-  //Would possibly need to add these events as an entity to the schema to see which params for each event?
-  let factory = Factory.load(event.address.toHexString());
+export function handleSetOwner(owner: Address): void {
+  let factory = Factory.load("SingleFactory");
+  if (!factory) {
+    factory = newFactory();
+  }
+
+  let user = UserObj.load(owner.toHex());
+  if (!user) {
+    user = new UserObj(owner.toHex())
+    let num = +(1) + +(factory.uniqueUserCount.toI32())
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save()
+  }
+}
+
+export function handleBurnCheckUniqueAddr(event: BurnEvent ): void {
+  let factory = Factory.load("SingleFactory");
+  if (!factory) {
+    factory = newFactory()
+  }
+    
+  let user = UserObj.load(event.params.owner.toHex());
+  if (!user) {
+    user = new UserObj(event.params.owner.toHex());
+    let num = +(1) + +(factory.uniqueUserCount.toI32())
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save();
+  }
+}
+
+export function handleFlashCheckUniqueAddr(event: FlashEvent ): void {
+  let factory = Factory.load("SingleFactory");
+  if (!factory) {
+    factory = newFactory()
+  }
+  
   let startingCount = factory.uniqueUserCount;
-  if (!factory.uniqueUserList.includes(event.params?.owner?.toHex())) {
-    factory.uniqueUserList.push(event.params?.owner?.toHex());
-    factory.uniqueUserCount = new BigInt(factory.uniqueUserList.length);
+
+  let user = UserObj.load(event.params.sender.toHex());
+  if (!user) {
+    user = new UserObj(event.params.sender.toHex());
+    let num = +(1) + +(factory.uniqueUserCount.toI32())
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save();
   }
-  if (!factory.uniqueUserList.includes(event.params?.sender?.toHex())) {
-    factory.uniqueUserList.push(event.params?.sender?.toHex());
-    factory.uniqueUserCount = new BigInt(factory.uniqueUserList.length);
-  }
-  if (!factory.uniqueUserList.includes(event.params?.recipient?.toHex())) {
-    factory.uniqueUserList.push(event.params?.recipient?.toHex());
-    factory.uniqueUserCount = new BigInt(factory.uniqueUserList.length);
+  user = UserObj.load(event.params.recipient.toHex());
+  if (!user) {
+    user = new UserObj(event.params.recipient.toHex());
+    let num = +(1) + +(factory.uniqueUserCount.toI32());
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save();
   }
 
   if (factory.uniqueUserCount !== startingCount) factory.save()
 }
 
+export function handleMintCheckUniqueAddr(event: MintEvent ): void {
+  let factory = Factory.load("SingleFactory");
+  if (!factory) {
+    factory = newFactory()
+  }
+  
+  let startingCount = factory.uniqueUserCount;
+  let user = UserObj.load(event.params.owner.toHex());
+  if (!user) {
+    user = new UserObj(event.params.owner.toHex());
+    let num = +(1) + +(factory.uniqueUserCount.toI32())
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save();
+  }
+  user = UserObj.load(event.params.sender.toHex());
+  if (!user) {
+    user = new UserObj(event.params.sender.toHex());
+    let num = +(1) + +(factory.uniqueUserCount.toI32())
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save();
+  }
+
+  if (factory.uniqueUserCount !== startingCount) factory.save()
+}
+
+export function handleSwapCheckUniqueAddr(event: SwapEvent ): void {
+  let factory = Factory.load("SingleFactory");
+  if (!factory) {
+    factory = newFactory()
+  }
+  
+  let startingCount = factory.uniqueUserCount;
+
+  let user = UserObj.load(event.params.sender.toHex());
+  if (!user) {
+    user = new UserObj(event.params.sender.toHex());
+    let num = +(1) + +(factory.uniqueUserCount.toI32())
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save();
+  }
+  user = UserObj.load(event.params.recipient.toHex());
+  if (!user) {
+    user = new UserObj(event.params.recipient.toHex());
+    let num = +(1) + +(factory.uniqueUserCount.toI32())
+    factory.uniqueUserCount = new BigInt(num);
+    factory.save();
+  }
+
+  if (factory.uniqueUserCount !== startingCount) factory.save()
+}

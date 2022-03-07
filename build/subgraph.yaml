@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: Factory
@@ -16,11 +16,11 @@ dataSources:
         - Factory
       abis:
         - name: Factory
-          file: ./abis/Factory.json
+          file: Factory/abis/Factory.json
       callHandlers:
         - function: setOwner(address)
           handler: handleSetOwner
-      file: ./src/mapping.ts
+      file: Factory/Factory.wasm
 templates:
   - kind: ethereum/contract
     name: Pool
@@ -31,16 +31,16 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: Factory/Factory.wasm
       entities:
         - Factory
       abis:
         - name: Pool
-          file: ./abis/Pool.json
+          file: Pool/abis/Pool.json
         - name: Factory
-          file: ./abis/Factory.json
+          file: Pool/abis/Factory.json
         - name: ERC20
-          file: ./abis/ERC20.json
+          file: Pool/abis/ERC20.json
       eventHandlers:
         - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
           handler: handleSwapCheckUniqueAddr
