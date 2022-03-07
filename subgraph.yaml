@@ -1,4 +1,4 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
@@ -10,13 +10,15 @@ dataSources:
       abi: Factory
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Factory
       abis:
         - name: Factory
           file: ./abis/Factory.json
+      blockHandlers:
+        - handler: handleCheckUniqueAddr
       file: ./src/mapping.ts
 templates:
   - kind: ethereum/contract
@@ -26,9 +28,9 @@ templates:
       abi: Pool
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/mappings/mapping.ts
+      file: ./src/mapping.ts
       entities:
         - Factory
       abis:

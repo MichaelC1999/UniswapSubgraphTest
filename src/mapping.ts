@@ -1,4 +1,5 @@
 
+import { BigInt } from "@graphprotocol/graph-ts";
 import { Factory } from "../generated/schema"
 import {
   Burn as BurnEvent,
@@ -6,7 +7,7 @@ import {
   Initialize,
   Mint as MintEvent,
   Swap as SwapEvent
-} from '../types/templates/Pool/Pool'
+} from '../generated/templates/Pool/Pool'
 
 export function handleInit(event: Initialize ): void {
   let factory = new Factory.load(event.address.toHexString())
@@ -19,21 +20,17 @@ export function handleCheckUniqueAddr(event: BurnEvent | FlashEvent | MintEvent 
   //Would possibly need to add these events as an entity to the schema to see which params for each event?
   let factory = Factory.load(event.address.toHexString());
   let startingCount = factory.uniqueUserCount;
-  if (!factory.uniqueUserList.includes(event.params?.from?.toHex())) {
-    factory.uniqueUserList.push(event.params?.from?.toHex());
-    factory.uniqueUserCount += 1;
-  }
-  if (!factory.uniqueUserList.includes(event.params?.to?.toHex())) {
-    factory.uniqueUserList.push(event.params?.to?.toHex());
-    factory.uniqueUserCount += 1;
+  if (!factory.uniqueUserList.includes(event.params?.owner?.toHex())) {
+    factory.uniqueUserList.push(event.params?.owner?.toHex());
+    factory.uniqueUserCount = new BigInt(factory.uniqueUserList.length);
   }
   if (!factory.uniqueUserList.includes(event.params?.sender?.toHex())) {
     factory.uniqueUserList.push(event.params?.sender?.toHex());
-    factory.uniqueUserCount += 1;
+    factory.uniqueUserCount = new BigInt(factory.uniqueUserList.length);
   }
   if (!factory.uniqueUserList.includes(event.params?.recipient?.toHex())) {
     factory.uniqueUserList.push(event.params?.recipient?.toHex());
-    factory.uniqueUserCount += 1;
+    factory.uniqueUserCount = new BigInt(factory.uniqueUserList.length);
   }
 
   if (factory.uniqueUserCount !== startingCount) factory.save()
