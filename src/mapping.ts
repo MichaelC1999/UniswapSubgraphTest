@@ -36,13 +36,13 @@ function newFactory(): Factory {
 function checkSenderAddr(sender: Address, factory: Factory): void {
   //This function checks for an instance of the UserObj entity matching the sender address parameter
   let user = UserObj.load(sender.toHex());
-  if (!user) {
+  if (user === null) {
     // If the sender param address has not been used to instantiate a UserObj, create a new UserObj instance
     user = new UserObj(sender.toHex());
     user.save();
     //Increment the uniqueUserCount on the factory instance
-    const num = +(1) + +(factory.uniqueUserCount.toI32());
-    factory.uniqueUserCount = new BigInt(num);
+    const newCount = factory.uniqueUserCount.toI32() + 1;
+    factory.uniqueUserCount = new BigInt(newCount);
     factory.save();
   }
 }
@@ -50,13 +50,13 @@ function checkSenderAddr(sender: Address, factory: Factory): void {
 function checkRecipientAddr(recipient: Address, factory: Factory): void {
   //This function checks for an instance of the UserObj entity matching the recipient address parameter
   let user = UserObj.load(recipient.toHex());
-  if (!user) {
+  if (user === null) {
     // If the recipient param address has not been used to instantiate a UserObj, create a new UserObj instance
     user = new UserObj(recipient.toHex());
     user.save();
     //Increment the uniqueUserCount on the factory instance
-    const num = +(1) + +(factory.uniqueUserCount.toI32());
-    factory.uniqueUserCount = new BigInt(num);
+    const newCount = factory.uniqueUserCount.toI32() + 1;
+    factory.uniqueUserCount = new BigInt(newCount);
     factory.save();
   }
 }
@@ -64,13 +64,13 @@ function checkRecipientAddr(recipient: Address, factory: Factory): void {
 function checkOwnerAddr(owner: Address, factory: Factory): void {
   //This function checks for an instance of the UserObj entity matching the owner address parameter
   let user = UserObj.load(owner.toHex());
-  if (!user) {
+  if (user === null) {
     // If the owner param address has not been used to instantiate a UserObj, create a new UserObj instance
     user = new UserObj(owner.toHex());
     user.save();
     //Increment the uniqueUserCount on the factory instance
-    const num = +(1) + +(factory.uniqueUserCount.toI32());
-    factory.uniqueUserCount = new BigInt(num);
+    const newCount = factory.uniqueUserCount.toI32() + 1;
+    factory.uniqueUserCount = new BigInt(newCount);
     factory.save();
   }
 }
