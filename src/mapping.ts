@@ -10,35 +10,22 @@ import {
 
 import { SetOwnerCall } from "../generated/templates/Pool/Factory";
 
-// FACTORY FUNCTIONS
-// These functions initiate/create the one Factory identity to hold the unique user count
-
-function initFactory(): Factory {
-  //This function loads the factory for all event handlers, and calls the newFactory() function if there is no Factory instance yet
-  let factory = Factory.load("SingleFactory");
-  if (!factory) {
-    factory = newFactory();
-  }
-  return factory;
-}
-
-function newFactory(): Factory {
-  // This function creates the Factory instance if it has not been initiated yet
-  const factory = new Factory("SingleFactory");
-  factory.uniqueUserCount = new BigInt(0);
-  return factory;
-}
-
-// UNIQUE USER ADDRESS CHECK FUNCTIONS
-// These functions check the given address parameter as the ID of a UserObj instance
+// UNIQUE USER ADDRESS CHECK FUNCTION
+// This function checks the given address as the ID of a UserObj instance
 // If the address is not used, create a new UserObj instance
 
 function checkAddr(addrToCheck: Address): void {
-  //This function checks for an instance of the UserObj entity matching the sender address parameter
-  const factory = initFactory();
+  // Load the factory entity. If it has not been initialized yet, create the instance
+  let factory = Factory.load("SingleFactory");
+  if (!factory) {
+    factory = new Factory("SingleFactory");
+    factory.uniqueUserCount = new BigInt(0);
+  }
+
+  // Attempt to load the UserObj associated with the given address
   let user = UserObj.load(addrToCheck.toHex());
   if (user === null) {
-    // If the sender param address has not been used to instantiate a UserObj, create a new UserObj instance
+    // If the address has not been used to instantiate a UserObj, create a new UserObj instance
     user = new UserObj(addrToCheck.toHex());
     user.save();
     //Increment the uniqueUserCount on the factory instance
@@ -48,12 +35,11 @@ function checkAddr(addrToCheck: Address): void {
   }
 }
 
-
 // EVENT/CALL HANDLER FUNCTIONS
-// All functions initiate the factory entity, then check the address parameters for an existing UserObj instance
-// The parameters checked in each function are defined in the Pool.ts template for each given event
+// All functions call checkAddr check the defined address parameters/inputs for an existing UserObj instance
 
 export function handleSetOwnerCall(call: SetOwnerCall): void {
+  // Factory.ts template defines the _owner input in setOwner calls
   checkAddr(call.inputs._owner);
 }
 
@@ -69,7 +55,6 @@ export function handleCheckUniqueAddrFlash(event: FlashEvent ): void {
 }
 
 export function handleCheckUniqueAddrMint(event: MintEvent ): void {
-  const factory = initFactory();
   // Pool.ts template defines the owner parameter and the sender parameter for Mint Events
   checkAddr(event.params.owner);
   checkAddr(event.params.sender);
