@@ -1,12 +1,14 @@
 
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { Factory, UserObj } from "../generated/schema"
+import { Factory, UserObj } from "../generated/schema";
 import {
   Burn as BurnEvent,
   Flash as FlashEvent,
   Mint as MintEvent,
   Swap as SwapEvent
-} from '../generated/templates/Pool/Pool'
+} from "../generated/templates/Pool/Pool";
+
+import { SetOwnerCall } from "../generated/templates/Pool/Factory";
 
 // FACTORY FUNCTIONS
 // These functions initiate/create the one Factory identity to hold the unique user count
@@ -59,7 +61,7 @@ function checkRecipientAddr(recipient: Address, factory: Factory): void {
   }
 }
 
-export function checkOwnerAddr(owner: Address, factory: Factory): void {
+function checkOwnerAddr(owner: Address, factory: Factory): void {
   //This function checks for an instance of the UserObj entity matching the owner address parameter
   let user = UserObj.load(owner.toHex());
   if (!user) {
@@ -73,9 +75,14 @@ export function checkOwnerAddr(owner: Address, factory: Factory): void {
   }
 }
 
-// EVENT HANDLER FUNCTIONS
+// EVENT/CALL HANDLER FUNCTIONS
 // All functions initiate the factory entity, then check the address parameters for an existing UserObj instance
 // The parameters checked in each function are defined in the Pool.ts template for each given event
+
+export function handleSetOwnerCall(call: SetOwnerCall): void {
+  const factory = initFactory();
+  checkOwnerAddr(call.inputs._owner, factory);
+}
 
 export function handleCheckUniqueAddrBurn(event: BurnEvent ): void {
   const factory = initFactory();

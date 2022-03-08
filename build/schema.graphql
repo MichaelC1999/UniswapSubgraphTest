@@ -1,8 +1,16 @@
 type Factory @entity {
+  # The entity which stores the count of unique addresses
+  # The uniqueUserCount is based on the amount of unique addresses used as ids for UserObj entity instances
+  # For the purpose of this test, there should only be one Factory instance
+  
   id: ID!
   uniqueUserCount: BigInt!
 }
 
 type UserObj @entity {
+  # The entity which is instantiated for each unique address involved in the events handled within the subgraph
+  # The mapping script checks each event's address params as a UserObj instance id
+  # If the address is not used yet, create UserObj instance and increment Factory uniqueUserCount
+
   id: ID!
 }
