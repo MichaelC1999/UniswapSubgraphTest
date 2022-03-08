@@ -33,12 +33,13 @@ function newFactory(): Factory {
 // These functions check the given address parameter as the ID of a UserObj instance
 // If the address is not used, create a new UserObj instance
 
-function checkSenderAddr(sender: Address, factory: Factory): void {
+function checkAddr(addrToCheck: Address): void {
   //This function checks for an instance of the UserObj entity matching the sender address parameter
-  let user = UserObj.load(sender.toHex());
+  const factory = initFactory();
+  let user = UserObj.load(addrToCheck.toHex());
   if (user === null) {
     // If the sender param address has not been used to instantiate a UserObj, create a new UserObj instance
-    user = new UserObj(sender.toHex());
+    user = new UserObj(addrToCheck.toHex());
     user.save();
     //Increment the uniqueUserCount on the factory instance
     const newCount = factory.uniqueUserCount.toI32() + 1;
@@ -47,66 +48,35 @@ function checkSenderAddr(sender: Address, factory: Factory): void {
   }
 }
 
-function checkRecipientAddr(recipient: Address, factory: Factory): void {
-  //This function checks for an instance of the UserObj entity matching the recipient address parameter
-  let user = UserObj.load(recipient.toHex());
-  if (user === null) {
-    // If the recipient param address has not been used to instantiate a UserObj, create a new UserObj instance
-    user = new UserObj(recipient.toHex());
-    user.save();
-    //Increment the uniqueUserCount on the factory instance
-    const newCount = factory.uniqueUserCount.toI32() + 1;
-    factory.uniqueUserCount = new BigInt(newCount);
-    factory.save();
-  }
-}
-
-function checkOwnerAddr(owner: Address, factory: Factory): void {
-  //This function checks for an instance of the UserObj entity matching the owner address parameter
-  let user = UserObj.load(owner.toHex());
-  if (user === null) {
-    // If the owner param address has not been used to instantiate a UserObj, create a new UserObj instance
-    user = new UserObj(owner.toHex());
-    user.save();
-    //Increment the uniqueUserCount on the factory instance
-    const newCount = factory.uniqueUserCount.toI32() + 1;
-    factory.uniqueUserCount = new BigInt(newCount);
-    factory.save();
-  }
-}
 
 // EVENT/CALL HANDLER FUNCTIONS
 // All functions initiate the factory entity, then check the address parameters for an existing UserObj instance
 // The parameters checked in each function are defined in the Pool.ts template for each given event
 
 export function handleSetOwnerCall(call: SetOwnerCall): void {
-  const factory = initFactory();
-  checkOwnerAddr(call.inputs._owner, factory);
+  checkAddr(call.inputs._owner);
 }
 
 export function handleCheckUniqueAddrBurn(event: BurnEvent ): void {
-  const factory = initFactory();
   // Pool.ts template defines the owner parameter in Burn Events
-  checkOwnerAddr(event.params.owner, factory);
+  checkAddr(event.params.owner);
 }
 
 export function handleCheckUniqueAddrFlash(event: FlashEvent ): void {
-  const factory = initFactory();
   // Pool.ts template defines the sender parameter and the recipient parameter for Flash Events
-  checkSenderAddr(event.params.sender, factory);
-  checkRecipientAddr(event.params.recipient, factory);
+  checkAddr(event.params.sender);
+  checkAddr(event.params.recipient);
 }
 
 export function handleCheckUniqueAddrMint(event: MintEvent ): void {
   const factory = initFactory();
   // Pool.ts template defines the owner parameter and the sender parameter for Mint Events
-  checkOwnerAddr(event.params.owner, factory);
-  checkSenderAddr(event.params.sender, factory);
+  checkAddr(event.params.owner);
+  checkAddr(event.params.sender);
 }
 
 export function handleCheckUniqueAddrSwap(event: SwapEvent ): void {
-  const factory = initFactory();
   // Pool.ts template defines the sender parameter and the recipient parameter for Swap Events
-  checkSenderAddr(event.params.sender, factory);
-  checkRecipientAddr(event.params.recipient, factory);
+  checkAddr(event.params.sender);
+  checkAddr(event.params.recipient);
 }
