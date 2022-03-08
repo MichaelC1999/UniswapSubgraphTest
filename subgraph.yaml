@@ -19,7 +19,7 @@ dataSources:
           file: ./abis/Factory.json
       callHandlers:
         - function: setOwner(address)
-          handler: handleSetOwner
+          handler: checkOwnerAddr
       file: ./src/mapping.ts
 templates:
   - kind: ethereum/contract
@@ -43,10 +43,10 @@ templates:
           file: ./abis/ERC20.json
       eventHandlers:
         - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
-          handler: handleSwapCheckUniqueAddr
+          handler: handleCheckUniqueAddrSwap
         - event: Mint(address,indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
-          handler: handleMintCheckUniqueAddr
+          handler: handleCheckUniqueAddrMint
         - event: Burn(indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
-          handler: handleBurnCheckUniqueAddr
+          handler: handleCheckUniqueAddrBurn
         - event: Flash(indexed address,indexed address,uint256,uint256,uint256,uint256)
-          handler: handleFlashCheckUniqueAddr
+          handler: handleCheckUniqueAddrFlash
