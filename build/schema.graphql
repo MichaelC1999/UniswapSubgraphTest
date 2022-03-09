@@ -2,7 +2,7 @@ type Factory @entity {
   # The entity which stores the count of unique addresses
   # The uniqueUserCount is based on the amount of unique addresses used as ids for UserObj entity instances
   # For the purpose of this test, there should only be one Factory instance
-  
+
   id: ID!
   uniqueUserCount: BigInt!
 }
@@ -13,4 +13,20 @@ type UserObj @entity {
   # If the address is not used yet, create UserObj instance and increment Factory uniqueUserCount
 
   id: ID!
+
+  # In order to test and verify that this subgraph correctly counts the unique user addresses, results will be compared between queries on this subgraph and the live Uniswap V3 subgraph
+  # As synchronizing every event on every pool is time consuming, the blockOfFirstRecordPool field is used to target a smaller portion of the results that is among the earliest data synchronized
+  # This eliminates the need to wait for the entire sync process to end before comparing results
+  # The blockOfFirstRecordPool field records the block of the creation of the pool with the event of the first instance of the user
+  # This is a parameter for querying 
+  blockOfFirstRecordPool: BigInt!
 }
+
+type Pool @entity {
+  # This entity is instantiated for each Pool. Within each pool are the events that are records of swaps/mints/burns/collects
+
+  id: ID!
+  createdAtBlockNumber: BigInt!
+
+}
+

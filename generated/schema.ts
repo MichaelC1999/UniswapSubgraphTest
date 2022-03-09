@@ -59,6 +59,8 @@ export class UserObj extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
+
+    this.set("blockOfFirstRecordPool", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -85,5 +87,58 @@ export class UserObj extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get blockOfFirstRecordPool(): BigInt {
+    let value = this.get("blockOfFirstRecordPool");
+    return value!.toBigInt();
+  }
+
+  set blockOfFirstRecordPool(value: BigInt) {
+    this.set("blockOfFirstRecordPool", Value.fromBigInt(value));
+  }
+}
+
+export class Pool extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("createdAtBlockNumber", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Pool entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Pool entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Pool", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Pool | null {
+    return changetype<Pool | null>(store.get("Pool", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get createdAtBlockNumber(): BigInt {
+    let value = this.get("createdAtBlockNumber");
+    return value!.toBigInt();
+  }
+
+  set createdAtBlockNumber(value: BigInt) {
+    this.set("createdAtBlockNumber", Value.fromBigInt(value));
   }
 }
